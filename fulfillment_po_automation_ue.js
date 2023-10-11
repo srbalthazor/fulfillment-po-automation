@@ -43,10 +43,18 @@ define(['N/record', 'N/search'], function(record,search) {
             log.debug('shipMethod is UPS','EXECUTING');
             var sublistName = 'packageups';
             var trackingName = 'packagetrackingnumberups';
+            var weightName = 'packageweightups';
+            var lengthName = 'packagelengthups';
+            var widthName = 'packagewidthups';
+            var heightName = 'packageheightups';
         } else if (shipMethod.indexOf('FedEx') > -1) {
             log.debug('shipMethod is FedEx','EXECUTING');
             var sublistName = 'packagefedex';
             var trackingName = 'packagetrackingnumberfedex';
+            var weightName = 'packageweightfedex';
+            var lengthName = 'packagelengthfedex';
+            var widthName = 'packagewidthfedex';
+            var heightName = 'packageheightfedex';
         } else if (shipMethod.indexOf('Freight') > -1) {
             log.debug('shipMethod is Freight','EXECUTING');
         } else {
@@ -71,7 +79,33 @@ define(['N/record', 'N/search'], function(record,search) {
                     line: i
                 });
                 log.debug("trackingNum",trackingNum);
-                var trackingNumList = trackingNumList + '\n' + trackingNum;
+                var weight = recObj.getSublistValue({ 
+                    sublistId: sublistName, 
+                    fieldId: weightName,
+                    line: i
+                });
+                log.debug("weight",weight);
+                var length = recObj.getSublistValue({ 
+                    sublistId: sublistName, 
+                    fieldId: lengthName,
+                    line: i
+                });
+                log.debug("length",length);
+                var width = recObj.getSublistValue({ 
+                    sublistId: sublistName, 
+                    fieldId: widthName,
+                    line: i
+                });
+                log.debug("width",width);
+                var height = recObj.getSublistValue({ 
+                    sublistId: sublistName, 
+                    fieldId: heightName,
+                    line: i
+                });
+                log.debug("height",height);
+
+                //Combine values above into var to be used as description on new PO
+                var trackingNumList = trackingNumList + '\n' + weight + ' lb ' + length + 'x' + width + 'x' + height + ' (' + trackingNum + ')';
             }
             log.debug("trackingNumList",trackingNumList);
         }
