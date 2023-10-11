@@ -4,7 +4,7 @@
 **Initial Deployment Date:** 08/03/23
 <br><br>
 ### Description
-When an Item Fulfillment (IF) is created with a Status of 'Shipped' or is changed from 'Packed' to 'Shipped', a Purchase Order (PO) will automatically be generated from this script. This Purchase Order will have a line on the Item sublist (Item depends on shipmethod and item IDs are listed in the code), a value in the Rate & Amount fields (pulled from IF shippingcost), and a Description consisting of the IF's created from Sales Order, Customer name, and package tracking numbers. The PO's Document Number will have a prefix that matches the IF's shipmethod. [UPS PO Example](https://5233917.app.netsuite.com/app/accounting/transactions/purchord.nl?id=695074)
+When an Item Fulfillment (IF) is created with a Status of 'Shipped' or is changed from 'Packed' to 'Shipped', a Purchase Order (PO) will automatically be generated from this script. This Purchase Order will have a line on the Item sublist (Item depends on shipmethod and item IDs are listed in the code), a value in the Rate & Amount fields (pulled from IF shippingcost), and a Description consisting of the IF's createdfrom Sales Order, Customer name, and packages data (weight, dims, tracking). The PO's Document Number will have a prefix that matches the IF's shipmethod. [UPS PO Example](https://5233917.app.netsuite.com/app/accounting/transactions/purchord.nl?id=695074)
 <br><br>
 ### Custom Components
 **Type:** Transaction Body Field (Sale)\
