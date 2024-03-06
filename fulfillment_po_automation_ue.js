@@ -112,18 +112,32 @@ define(['N/record', 'N/search'], function(record,search) {
 
         // Get createdfrom and necessary fields from the SO
         var createdFrom = recObj.getValue({ fieldId: 'createdfrom' });
-        var createdFromRec = record.load({
-            type: record.Type.SALES_ORDER, 
-            id: createdFrom,
-            isDynamic: true,
-        });
-        var salesOrderNum = createdFromRec.getText({ fieldId: 'tranid'});
-        log.debug('salesOrderNum', salesOrderNum);
-        var salesOrderLocation = createdFromRec.getValue({ fieldId: 'location' });
-        log.debug('salesOrderLocation', salesOrderLocation);
+        var createdFromText = recObj.getText({ fieldId: 'createdfrom' });
+        log.debug('createdFromText',createdFromText);
+        if (createdFromText.indexOf('SO') > -1) {
+            var locationField = 'location';
+            var createdFromRec = record.load({
+                type: record.Type.SALES_ORDER, 
+                id: createdFrom,
+                isDynamic: true,
+            });
+        } else {
+            var locationField = 'transferlocation';
+            var createdFromRec = record.load({
+                type: record.Type.TRANSFER_ORDER, 
+                id: createdFrom,
+                isDynamic: true,
+            });
+        }
+        var createdFromNum = createdFromRec.getText({ fieldId: 'tranid'});
+        log.debug('createdFromNum', createdFromNum);
+        var createdFromLocation = createdFromRec.getValue({ fieldId: locationField });
+        var createdFromLocationText = createdFromRec.getText({ fieldId: locationField });
+        log.debug('createdFromLocationText', createdFromLocationText);
+        var descriptionDetail = customerName || createdFromLocationText;
 
         // Combine the SO#, Customer Name, and list of tracking numbers to send to the PO
-        var itemDescription = salesOrderNum + '\n' + customerName + trackingNumList;
+        var itemDescription = createdFromNum + '\n' + descriptionDetail + trackingNumList;
         log.debug('itemDescription', itemDescription);    
 
         // Now create the new PO
@@ -135,39 +149,28 @@ define(['N/record', 'N/search'], function(record,search) {
         // Set body fields
         if (shipMethod.indexOf('UPS') > -1) {
             newPO.setValue({ fieldId: 'entity', value: '543' });
+            var sublistItem = '2847';
         } else if (shipMethod.indexOf('FedEx') > -1) {
             newPO.setValue({ fieldId: 'entity', value: '46510' });
+            var sublistItem = '2858';
         } else if (shipMethod.indexOf('Freight') > -1) {
             newPO.setValue({ fieldId: 'entity', value: '357' });
+            var sublistItem = '2857';
         }
         newPO.setValue({ fieldId: 'subsidiary', value: '2' });
-        newPO.setValue({ fieldId: 'location', value: salesOrderLocation });
-        newPO.setValue({ fieldId: 'memo', value: salesOrderNum });
+        newPO.setValue({ fieldId: 'location', value: createdFromLocation });
+        newPO.setValue({ fieldId: 'memo', value: createdFromNum });
         newPO.setValue({ fieldId: 'approvalstatus', value: '2' });
 
         // Set line item fields
         newPO.selectNewLine({
             sublistId: 'item'
         });
-        if (shipMethod.indexOf('UPS') > -1) {
-            newPO.setCurrentSublistValue({
+        newPO.setCurrentSublistValue({
                 sublistId: 'item',
                 fieldId: 'item',
-                value: '2847'
-            });
-        } else if (shipMethod.indexOf('FedEx') > -1) {
-            newPO.setCurrentSublistValue({
-                sublistId: 'item',
-                fieldId: 'item',
-                value: '2858'
-            });
-        } else if (shipMethod.indexOf('Freight') > -1) {
-            newPO.setCurrentSublistValue({
-                sublistId: 'item',
-                fieldId: 'item',
-                value: '2857'
-            });
-        }
+                value: sublistItem
+        });
         newPO.setCurrentSublistValue({
             sublistId: 'item',
             fieldId: 'description',
